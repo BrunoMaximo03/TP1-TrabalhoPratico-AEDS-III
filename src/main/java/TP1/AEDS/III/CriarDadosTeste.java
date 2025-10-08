@@ -72,38 +72,53 @@ public class CriarDadosTeste {
         try {
             BoletoDAO boletoDAO = new BoletoDAO();
             
-            // Boleto 1 - Cliente 1
+            // Boleto 1 - Cliente João (CPF: 12345678901)
             Boleto boleto1 = new Boleto();
-            boleto1.setIdCliente(1);
+            boleto1.setCPFCliente("12345678901");  // ✅ MUDANÇA: Usar CPF ao invés de ID
             boleto1.setDescricao("Conta de Energia Elétrica");
             boleto1.setValor(new BigDecimal("150.75"));
+            boleto1.setDataEmissao(LocalDate.now());  // ✅ MUDANÇA: Adicionar data de emissão
             boleto1.setDataVencimento(LocalDate.now().plusDays(30));
             boleto1.setStatus(BoletoStatus.PENDENTE);
             
             boolean criado1 = boletoDAO.incluirBoleto(boleto1);
-            System.out.println("Boleto 1 criado: " + criado1 + " - ID: " + boleto1.getId());
+            System.out.println("Boleto 1 criado: " + criado1 + " - ID: " + boleto1.getId() + " (Cliente CPF: 12345678901)");
             
-            // Boleto 2 - Cliente 1
+            // Boleto 2 - Cliente João (CPF: 12345678901)
             Boleto boleto2 = new Boleto();
-            boleto2.setIdCliente(1);
+            boleto2.setCPFCliente("12345678901");  // ✅ MUDANÇA: Usar CPF ao invés de ID
             boleto2.setDescricao("Conta de Água");
             boleto2.setValor(new BigDecimal("85.30"));
+            boleto2.setDataEmissao(LocalDate.now());  // ✅ MUDANÇA: Adicionar data de emissão
             boleto2.setDataVencimento(LocalDate.now().plusDays(15));
             boleto2.setStatus(BoletoStatus.PENDENTE);
             
             boolean criado2 = boletoDAO.incluirBoleto(boleto2);
-            System.out.println("Boleto 2 criado: " + criado2 + " - ID: " + boleto2.getId());
+            System.out.println("Boleto 2 criado: " + criado2 + " - ID: " + boleto2.getId() + " (Cliente CPF: 12345678901)");
             
-            // Boleto 3 - Cliente 2
+            // Boleto 3 - Cliente Maria (CPF: 98765432109)
             Boleto boleto3 = new Boleto();
-            boleto3.setIdCliente(2);
+            boleto3.setCPFCliente("98765432109");  // ✅ MUDANÇA: Usar CPF ao invés de ID
             boleto3.setDescricao("Internet Banda Larga");
             boleto3.setValor(new BigDecimal("99.90"));
+            boleto3.setDataEmissao(LocalDate.now());  // ✅ MUDANÇA: Adicionar data de emissão
             boleto3.setDataVencimento(LocalDate.now().plusDays(20));
             boleto3.setStatus(BoletoStatus.PENDENTE);
             
             boolean criado3 = boletoDAO.incluirBoleto(boleto3);
-            System.out.println("Boleto 3 criado: " + criado3 + " - ID: " + boleto3.getId());
+            System.out.println("Boleto 3 criado: " + criado3 + " - ID: " + boleto3.getId() + " (Cliente CPF: 98765432109)");
+            
+            // Boleto 4 - Cliente Pedro (CPF: 55555555555)
+            Boleto boleto4 = new Boleto();
+            boleto4.setCPFCliente("55555555555");  // ✅ MUDANÇA: Adicionar boleto para Pedro
+            boleto4.setDescricao("Cartão de Crédito");
+            boleto4.setValor(new BigDecimal("1200.00"));
+            boleto4.setDataEmissao(LocalDate.now());
+            boleto4.setDataVencimento(LocalDate.now().plusDays(25));
+            boleto4.setStatus(BoletoStatus.PENDENTE);
+            
+            boolean criado4 = boletoDAO.incluirBoleto(boleto4);
+            System.out.println("Boleto 4 criado: " + criado4 + " - ID: " + boleto4.getId() + " (Cliente CPF: 55555555555)");
             
         } catch (Exception e) {
             System.out.println("❌ Erro ao criar boletos: " + e.getMessage());

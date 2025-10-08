@@ -73,22 +73,13 @@ public class MenuBoletos {
     private void listarClientes() {
         System.out.println("\n=== CLIENTES CADASTRADOS ===");
         try {
-            // Buscar todos os clientes (implementação simples)
-            boolean encontrouClientes = false;
-            for (int id = 1; id <= 100; id++) {
-                try {
-                    Cliente cliente = clienteDAO.buscarCliente(id);
-                    if (cliente != null) {
-                        System.out.println("ID: " + cliente.getId() + " - " + cliente.getNome() + " (CPF: " + cliente.getCPF() + ")");
-                        encontrouClientes = true;
-                    }
-                } catch (Exception e) {
-                    // Cliente não encontrado, continua
-                }
-            }
-            
-            if (!encontrouClientes) {
+            java.util.List<Cliente> clientes = clienteDAO.listarTodosClientes();
+            if (clientes.isEmpty()) {
                 System.out.println("Nenhum cliente cadastrado.");
+            } else {
+                for (Cliente cliente : clientes) {
+                    System.out.println("ID: " + cliente.getId() + " - " + cliente.getNome() + " (CPF: " + cliente.getCPF() + ")");
+                }
             }
         } catch (Exception e) {
             System.out.println("Erro ao listar clientes: " + e.getMessage());
@@ -96,18 +87,18 @@ public class MenuBoletos {
     }
 
     private void gerenciarBoletosPorCliente() {
-        System.out.print("\nID do cliente: ");
-        int idCliente = Integer.parseInt(console.nextLine());
+        System.out.print("\nCPF do cliente: ");
+        String cpfCliente = console.nextLine();
         
         try {
-            Cliente cliente = clienteDAO.buscarCliente(idCliente);
+            Cliente cliente = clienteDAO.buscarClientePorCPF(cpfCliente);
             if (cliente == null) {
-                System.out.println("Cliente não encontrado.");
+                System.out.println("Cliente não encontrado com CPF: " + cpfCliente);
                 return;
             }
             
             System.out.println("\n=== BOLETOS DO CLIENTE: " + cliente.getNome() + " ===");
-            List<Boleto> boletos = boletoDAO.listarBoletosPorCliente(idCliente);
+            List<Boleto> boletos = boletoDAO.listarBoletosPorCPF(cpfCliente);
             
             if (boletos.isEmpty()) {
                 System.out.println("Este cliente não possui boletos.");
@@ -128,15 +119,17 @@ public class MenuBoletos {
         // Primeiro, mostrar clientes disponíveis
         listarClientes();
         
-        System.out.print("\nID do cliente: ");
-        int idCliente = Integer.parseInt(console.nextLine());
+        System.out.print("\nCPF do cliente: ");
+        String cpfCliente = console.nextLine();
         
         try {
-            Cliente cliente = clienteDAO.buscarCliente(idCliente);
+            Cliente cliente = clienteDAO.buscarClientePorCPF(cpfCliente);
             if (cliente == null) {
-                System.out.println("Cliente não encontrado.");
+                System.out.println("Cliente não encontrado com CPF: " + cpfCliente);
                 return;
             }
+            
+            System.out.println("✅ Cliente encontrado: " + cliente.getNome());
             
             System.out.print("Descrição: ");
             String descricao = console.nextLine();
@@ -152,15 +145,15 @@ public class MenuBoletos {
             String dataVencimentoStr = console.nextLine();
             LocalDate dataVencimento = LocalDate.parse(dataVencimentoStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             
-            Boleto boleto = new Boleto(0, idCliente, dataEmissao, dataVencimento, descricao, valor, BoletoStatus.PENDENTE);
+            Boleto boleto = new Boleto(0, cpfCliente, dataEmissao, dataVencimento, descricao, valor, BoletoStatus.PENDENTE);
             
             if (boletoDAO.incluirBoleto(boleto)) {
-                System.out.println("Boleto incluído com sucesso.");
+                System.out.println("✅ Boleto incluído com sucesso.");
             } else {
-                System.out.println("Erro ao incluir boleto.");
+                System.out.println("❌ Erro ao incluir boleto.");
             }
         } catch (Exception e) {
-            System.out.println("Erro ao incluir boleto: " + e.getMessage());
+            System.out.println("❌ Erro ao incluir boleto: " + e.getMessage());
         }
     }
 
@@ -171,17 +164,20 @@ public class MenuBoletos {
         try {
             Boleto boleto = boletoDAO.buscarBoleto(id);
             if (boleto != null) {
-                // Buscar dados do cliente
-                Cliente cliente = clienteDAO.buscarCliente(boleto.getIdCliente());
+                // Buscar dados do cliente pelo CPF
+                Cliente cliente = clienteDAO.buscarClientePorCPF(boleto.getCPFCliente());
+                System.out.println("✅ Boleto encontrado:");
                 System.out.println(boleto);
                 if (cliente != null) {
                     System.out.println("Cliente...: " + cliente.getNome());
+                } else {
+                    System.out.println("⚠️ Cliente não encontrado para CPF: " + boleto.getCPFCliente());
                 }
             } else {
-                System.out.println("Boleto não encontrado.");
+                System.out.println("❌ Boleto não encontrado.");
             }
         } catch (Exception e) {
-            System.out.println("Erro ao buscar boleto: " + e.getMessage());
+            System.out.println("❌ Erro ao buscar boleto: " + e.getMessage());
         }
     }
 

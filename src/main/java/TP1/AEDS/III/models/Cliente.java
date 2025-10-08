@@ -10,9 +10,9 @@ import java.util.List;
 import TP1.AEDS.III.repository.Registro;
 
 public class Cliente implements Registro {
+    private String CPF;
     private int id;
     private String nome;
-    private String CPF;
     private String telefone;
     private String endereco;
     private List<String> emails;

@@ -72,12 +72,15 @@ public class BoletoDAO {
         return removido;
     }
 
-    public List<Boleto> listarBoletosPorCliente(int idCliente) throws Exception {
+    public List<Boleto> listarBoletosPorCPF(String cpfCliente) throws Exception {
         List<Boleto> boletosDoCLiente = new ArrayList<>();
         
+        if (cpfCliente == null || cpfCliente.trim().isEmpty()) {
+            return boletosDoCLiente;
+        }
+        
         // Primeiro, vamos verificar o último ID usado no arquivo
-        // para não tentar IDs que não existem
-        System.out.println("DEBUG: Buscando boletos para cliente ID: " + idCliente);
+        System.out.println("DEBUG: Buscando boletos para cliente CPF: " + cpfCliente);
         
         int id = 1;
         int tentativasVazias = 0;
@@ -85,14 +88,14 @@ public class BoletoDAO {
         
         while (tentativasVazias < MAX_TENTATIVAS_VAZIAS && id <= 10000) {
             try {
-                Boleto boleto = buscarBoleto(id); // Agora usa o índice hash
+                Boleto boleto = buscarBoleto(id); // Usa o índice hash
                 if (boleto == null) {
                     tentativasVazias++;
                 } else {
                     tentativasVazias = 0; // Reset contador
-                    System.out.println("DEBUG: Boleto encontrado - ID: " + boleto.getId() + ", Cliente: " + boleto.getIdCliente());
+                    System.out.println("DEBUG: Boleto encontrado - ID: " + boleto.getId() + ", CPF Cliente: " + boleto.getCPFCliente());
                     
-                    if (boleto.getIdCliente() == idCliente) {
+                    if (cpfCliente.equals(boleto.getCPFCliente())) {
                         boletosDoCLiente.add(boleto);
                         System.out.println("DEBUG: Boleto adicionado à lista!");
                     }
@@ -107,6 +110,41 @@ public class BoletoDAO {
         
         System.out.println("DEBUG: Total de boletos encontrados para o cliente: " + boletosDoCLiente.size());
         return boletosDoCLiente;
+    }
+
+    // Método para compatibilidade (deprecated)
+    @Deprecated
+    public List<Boleto> listarBoletosPorCliente(int idCliente) throws Exception {
+        // Buscar o CPF do cliente pelo ID (método menos eficiente)
+        // Este método deveria ser evitado, mas mantido para compatibilidade
+        System.out.println("AVISO: Usando método deprecated listarBoletosPorCliente(int). Use listarBoletosPorCPF(String)");
+        
+        List<Boleto> boletosDoCLiente = new ArrayList<>();
+        
+        int id = 1;
+        int tentativasVazias = 0;
+        final int MAX_TENTATIVAS_VAZIAS = 50;
+        
+        while (tentativasVazias < MAX_TENTATIVAS_VAZIAS && id <= 10000) {
+            try {
+                Boleto boleto = buscarBoleto(id);
+                if (boleto == null) {
+                    tentativasVazias++;
+                } else {
+                    tentativasVazias = 0;
+                    // Como agora o boleto armazena CPF, não podemos comparar com int idCliente
+                    // Este método não funciona mais adequadamente
+                    System.out.println("DEBUG: Boleto encontrado - ID: " + boleto.getId() + ", CPF Cliente: " + boleto.getCPFCliente());
+                }
+                id++;
+            } catch (Exception e) {
+                tentativasVazias++;
+                id++;
+            }
+        }
+        
+        System.out.println("AVISO: Método deprecated retorna lista vazia. Use listarBoletosPorCPF(String)");
+        return boletosDoCLiente; // Retorna lista vazia
     }
 
     public List<Boleto> listarTodosBoletos() throws Exception {

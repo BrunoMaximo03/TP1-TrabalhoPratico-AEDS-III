@@ -12,7 +12,7 @@ import TP1.AEDS.III.repository.Registro;
 public class Boleto implements Registro {
 
     private int id;
-    private int idCliente;
+    private String CPF_cliente;
     private LocalDate dataEmissao;
     private LocalDate dataVencimento;
     private String descricao;
@@ -23,9 +23,9 @@ public class Boleto implements Registro {
         
     }
 
-    public Boleto(int id, int idCliente, LocalDate dataEmissao, LocalDate dataVencimento, String descricao, BigDecimal valor, BoletoStatus status) {
+    public Boleto(int id, String cpfCliente, LocalDate dataEmissao, LocalDate dataVencimento, String descricao, BigDecimal valor, BoletoStatus status) {
         this.id = id;
-        this.idCliente = idCliente;
+        this.CPF_cliente = cpfCliente;  // Corrigido: usar o parâmetro
         this.dataEmissao = dataEmissao;
         this.dataVencimento = dataVencimento;
         this.descricao = descricao;
@@ -36,7 +36,7 @@ public class Boleto implements Registro {
     //setters
     public void setId(int id) { this.id = id; }
 
-    public void setIdCliente(int idCliente) { this.idCliente = idCliente; }
+    public void setCPFCliente(String cpfCliente) { this.CPF_cliente = cpfCliente; }
 
     public void setDataEmissao(LocalDate dataEmissao) { this.dataEmissao = dataEmissao; }
 
@@ -51,7 +51,7 @@ public class Boleto implements Registro {
     //getters
     public int getId() { return id; }
 
-    public int getIdCliente() { return idCliente; }
+    public String getCPFCliente() { return CPF_cliente; }
 
     public LocalDate getDataEmissao() { return dataEmissao; }
 
@@ -63,6 +63,13 @@ public class Boleto implements Registro {
 
     public BoletoStatus getStatus() { return status; }
 
+    // Método para compatibilidade (deprecated)
+    @Deprecated
+    public String getIdCliente() { return CPF_cliente; }
+    
+    @Deprecated
+    public void setIdCliente(String cpfCliente) { this.CPF_cliente = cpfCliente; }
+
     // Métodos da interface Registro
     @Override
     public byte[] toByteArray() throws IOException {
@@ -70,7 +77,7 @@ public class Boleto implements Registro {
         DataOutputStream dos = new DataOutputStream(baos);
         
         dos.writeInt(id);
-        dos.writeInt(idCliente);
+        dos.writeUTF(CPF_cliente);
         dos.writeUTF(descricao != null ? descricao : "");
         
         // Serializar valor BigDecimal
@@ -109,7 +116,7 @@ public class Boleto implements Registro {
         DataInputStream dis = new DataInputStream(bais);
         
         this.id = dis.readInt();
-        this.idCliente = dis.readInt();
+        this.CPF_cliente = dis.readUTF();
         this.descricao = dis.readUTF();
         
         // Deserializar valor BigDecimal
@@ -135,7 +142,7 @@ public class Boleto implements Registro {
     @Override
     public String toString() {
         return "\nID........: " + this.id +
-               "\nID Cliente: " + this.idCliente +
+               "\nCPF Cliente: " + this.CPF_cliente +
                "\nDescrição.: " + this.descricao +
                "\nValor.....: " + this.valor +
                "\nEmissão...: " + this.dataEmissao +

@@ -80,7 +80,7 @@ public class BoletoDAO {
         }
         
         // Primeiro, vamos verificar o último ID usado no arquivo
-        System.out.println("DEBUG: Buscando boletos para cliente CPF: " + cpfCliente);
+        //System.out.println("DEBUG: Buscando boletos para cliente CPF: " + cpfCliente);
         
         int id = 1;
         int tentativasVazias = 0;
@@ -93,22 +93,22 @@ public class BoletoDAO {
                     tentativasVazias++;
                 } else {
                     tentativasVazias = 0; // Reset contador
-                    System.out.println("DEBUG: Boleto encontrado - ID: " + boleto.getId() + ", CPF Cliente: " + boleto.getCPFCliente());
+                    //System.out.println("DEBUG: Boleto encontrado - ID: " + boleto.getId() + ", CPF Cliente: " + boleto.getCPFCliente());
                     
                     if (cpfCliente.equals(boleto.getCPFCliente())) {
                         boletosDoCLiente.add(boleto);
-                        System.out.println("DEBUG: Boleto adicionado à lista!");
+                        //System.out.println("Boleto adicionado à lista!");
                     }
                 }
                 id++;
             } catch (Exception e) {
-                System.out.println("DEBUG: Erro ao ler boleto ID " + id + ": " + e.getMessage());
+                System.out.println("Erro ao ler boleto ID " + id + ": " + e.getMessage());
                 tentativasVazias++;
                 id++;
             }
         }
         
-        System.out.println("DEBUG: Total de boletos encontrados para o cliente: " + boletosDoCLiente.size());
+        System.out.println("Total de boletos encontrados para o cliente: " + boletosDoCLiente.size());
         return boletosDoCLiente;
     }
 

@@ -15,13 +15,11 @@ public class Tp1AedsIiiApplication {
 
         try {
             do {
-                System.out.println("\nAEDsIII");
-                System.out.println("-------");
-                System.out.println("> Início");
-                System.out.println("\n1 - Clientes");
+                System.out.println("\n=== SISTEMA DE GESTÃO DE BOLETOS ===");
+                System.out.println("1 - Clientes");
                 System.out.println("2 - Boletos");
+                System.out.println("3 - Tags (N:N)");
                 System.out.println("0 - Sair");
-
                 System.out.print("\nOpção: ");
                 try {
                     opcao = Integer.valueOf(console.nextLine());
@@ -38,11 +36,15 @@ public class Tp1AedsIiiApplication {
                         MenuBoletos menuBoletos = new MenuBoletos();
                         menuBoletos.menu();
                         break;
+                    case 3:
+                        MenuTags menuTags = new MenuTags();
+                        menuTags.menu();
+                        break;
                     case 0:
-                        System.out.println("Saindo...");
+                        System.out.println("\nEncerrando sistema...");
                         break;
                     default:
-                        System.out.println("Opção inválida!");
+                        System.out.println("\nOpção inválida!");
                         break;
                 }
             } while (opcao != 0);

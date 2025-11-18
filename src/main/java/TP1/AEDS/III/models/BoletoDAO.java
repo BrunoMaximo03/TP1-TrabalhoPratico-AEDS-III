@@ -37,6 +37,19 @@ public class BoletoDAO {
     }
 
     public boolean incluirBoleto(Boleto boleto) throws Exception {
+        // Verifica se o CPF do cliente foi informado
+        if (boleto.getCPFCliente() == null || boleto.getCPFCliente().trim().isEmpty()) {
+            throw new Exception("CPF do cliente e obrigatorio para incluir boleto");
+        }
+        
+        // Verifica se o cliente existe no sistema
+        ClienteDAO clienteDAO = new ClienteDAO();
+        Cliente cliente = clienteDAO.buscarClientePorCPF(boleto.getCPFCliente());
+        
+        if (cliente == null) {
+            throw new Exception("Cliente nao encontrado. E necessario ter clientes cadastrados primeiro.");
+        }
+        
         // Salva o boleto no arquivo de dados e obtém o endereço
         long endereco = arqBoletos.create(boleto);
         
@@ -56,8 +69,25 @@ public class BoletoDAO {
             return false; // Boleto não encontrado
         }
         
+        // Busca o endereço antigo antes do update
+        long enderecoAntigo = regHash.getEndereco();
+        
         // Atualiza o registro no arquivo de dados
-        return arqBoletos.update(boleto);
+        boolean atualizado = arqBoletos.update(boleto);
+        
+        if (atualizado) {
+            // Busca o novo endereço após o update
+            long novoEndereco = arqBoletos.findAddress(boleto.getId());
+            
+            // Se o endereço mudou, atualiza o índice hash
+            if (novoEndereco != enderecoAntigo && novoEndereco != -1) {
+                indiceBoletos.delete(boleto.getId());
+                RegistroHashBoleto novoRegHash = new RegistroHashBoleto(boleto.getId(), novoEndereco);
+                indiceBoletos.create(novoRegHash);
+            }
+        }
+        
+        return atualizado;
     }
 
     public boolean excluirBoleto(int id) throws Exception {

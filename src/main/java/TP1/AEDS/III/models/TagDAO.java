@@ -57,8 +57,34 @@ public class TagDAO {
             return false; // Tag não encontrada
         }
         
+        // Busca o endereço antigo antes do update
+        long enderecoAntigo = regHash.getEndereco();
+        
         // Atualiza o registro no arquivo de dados
-        return arquivoTag.update(tag);
+        boolean atualizado = arquivoTag.update(tag);
+        
+        if (atualizado) {
+            // Busca o novo endereço após o update
+            // (pode ter mudado se o novo tamanho for maior)
+            Tag tagAtualizada = arquivoTag.read(tag.getId());
+            if (tagAtualizada != null) {
+                long novoEndereco = encontrarEndereco(tag.getId());
+                
+                // Se o endereço mudou, atualiza o índice hash
+                if (novoEndereco != enderecoAntigo && novoEndereco != -1) {
+                    indiceTags.delete(tag.getId());
+                    RegistroHashTag novoRegHash = new RegistroHashTag(tag.getId(), novoEndereco);
+                    indiceTags.create(novoRegHash);
+                }
+            }
+        }
+        
+        return atualizado;
+    }
+    
+    // Método auxiliar para encontrar o endereço atual de uma tag
+    private long encontrarEndereco(int id) throws Exception {
+        return arquivoTag.findAddress(id);
     }
     
     public boolean excluirTag(int id) throws Exception {

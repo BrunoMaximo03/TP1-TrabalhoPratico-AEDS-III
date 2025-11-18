@@ -82,10 +82,24 @@ public class ClienteDAO {
             return false; // Cliente não encontrado
         }
         
+        // Busca o endereço antigo antes do update
+        long enderecoAntigo = encontrado.getEndereco();
+        
         // Atualiza o registro no arquivo de dados
         boolean atualizado = arqClientes.update(cliente);
         
-        // Nota: Não precisa atualizar o índice pois o CPF e endereço não mudam
+        if (atualizado) {
+            // Busca o novo endereço após o update
+            long novoEndereco = arqClientes.findAddress(cliente.getId());
+            
+            // Se o endereço mudou, atualiza o índice hash
+            if (novoEndereco != enderecoAntigo && novoEndereco != -1) {
+                indiceClientesCPF.delete(regHash.hashCode());
+                RegistroHashClienteCPF novoRegHash = new RegistroHashClienteCPF(cliente.getCPF(), novoEndereco);
+                indiceClientesCPF.create(novoRegHash);
+            }
+        }
+        
         return atualizado;
     }
 

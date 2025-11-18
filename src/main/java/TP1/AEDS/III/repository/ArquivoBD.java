@@ -92,6 +92,27 @@ public class ArquivoBD<TipoGenerico extends Registro> {
         return obj;
     }
 
+    // Método para encontrar o endereço de um registro por ID
+    public long findAddress(int id) throws Exception {
+        arquivo.seek(TAM_CABECALHO);
+        while (arquivo.getFilePointer() < arquivo.length()) {
+            long posicao = arquivo.getFilePointer();
+            byte lapide = arquivo.readByte();
+            short tamanho = arquivo.readShort();
+            byte[] dados = new byte[tamanho];
+            arquivo.read(dados);
+
+            if (lapide == ' ') {
+                TipoGenerico obj = construtor.newInstance();
+                obj.fromByteArray(dados);
+                if (obj.getId() == id) {
+                    return posicao; // Retorna o endereço onde está o registro
+                }
+            }
+        }
+        return -1; // Não encontrado
+    }
+
     public boolean delete(int id) throws Exception {
         arquivo.seek(TAM_CABECALHO);
         while (arquivo.getFilePointer() < arquivo.length()) {
@@ -108,11 +129,40 @@ public class ArquivoBD<TipoGenerico extends Registro> {
                     arquivo.seek(posicao);
                     arquivo.writeByte('*');
                     addDeleted(tamanho, posicao);
+                    
+                    // Recalcula o último ID após exclusão
+                    recalcularUltimoID();
+                    
                     return true;
                 }
             }
         }
         return false;
+    }
+    
+    // Método para recalcular o último ID baseado nos registros ativos
+    private void recalcularUltimoID() throws Exception {
+        int maiorID = 0;
+        
+        arquivo.seek(TAM_CABECALHO);
+        while (arquivo.getFilePointer() < arquivo.length()) {
+            byte lapide = arquivo.readByte();
+            short tamanho = arquivo.readShort();
+            byte[] dados = new byte[tamanho];
+            arquivo.read(dados);
+
+            if (lapide == ' ') {
+                TipoGenerico obj = construtor.newInstance();
+                obj.fromByteArray(dados);
+                if (obj.getId() > maiorID) {
+                    maiorID = obj.getId();
+                }
+            }
+        }
+        
+        // Atualiza o cabeçalho com o maior ID encontrado
+        arquivo.seek(0);
+        arquivo.writeInt(maiorID);
     }
 
     public boolean update(TipoGenerico novoObj) throws Exception {

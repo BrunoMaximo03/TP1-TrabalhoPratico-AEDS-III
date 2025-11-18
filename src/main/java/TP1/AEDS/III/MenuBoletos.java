@@ -114,30 +114,40 @@ public class MenuBoletos {
     }
 
     private void incluirBoleto() {
-        System.out.println("\nInclusão de boleto");
-        
-        // Primeiro, mostrar clientes disponíveis
-        listarClientes();
-        
-        System.out.print("\nCPF do cliente: ");
-        String cpfCliente = console.nextLine();
+        System.out.println("\nInclusao de boleto");
         
         try {
-            Cliente cliente = clienteDAO.buscarClientePorCPF(cpfCliente);
-            if (cliente == null) {
-                System.out.println("Cliente não encontrado com CPF: " + cpfCliente);
+            // Verificar se há clientes cadastrados antes
+            ClienteDAO verificacao = new ClienteDAO();
+            List<Cliente> clientesExistentes = verificacao.listarTodosClientes();
+            
+            if (clientesExistentes.isEmpty()) {
+                System.out.println("\nE necessario ter clientes cadastrados primeiro.");
+                System.out.println("Por favor, cadastre um cliente antes de criar boletos.");
                 return;
             }
             
-            System.out.println("✅ Cliente encontrado: " + cliente.getNome());
+            // Mostrar clientes disponíveis
+            listarClientes();
             
-            System.out.print("Descrição: ");
+            System.out.print("\nCPF do cliente: ");
+            String cpfCliente = console.nextLine();
+            
+            Cliente cliente = clienteDAO.buscarClientePorCPF(cpfCliente);
+            if (cliente == null) {
+                System.out.println("Cliente nao encontrado com CPF: " + cpfCliente);
+                return;
+            }
+            
+            System.out.println("[OK] Cliente encontrado: " + cliente.getNome());
+            
+            System.out.print("Descricao: ");
             String descricao = console.nextLine();
             
             System.out.print("Valor: ");
             BigDecimal valor = new BigDecimal(console.nextLine());
             
-            System.out.print("Data de emissão (DD/MM/AAAA): ");
+            System.out.print("Data de emissao (DD/MM/AAAA): ");
             String dataEmissaoStr = console.nextLine();
             LocalDate dataEmissao = LocalDate.parse(dataEmissaoStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             
@@ -148,12 +158,12 @@ public class MenuBoletos {
             Boleto boleto = new Boleto(0, cpfCliente, dataEmissao, dataVencimento, descricao, valor, BoletoStatus.PENDENTE);
             
             if (boletoDAO.incluirBoleto(boleto)) {
-                System.out.println("✅ Boleto incluído com sucesso.");
+                System.out.println("[OK] Boleto incluido com sucesso.");
             } else {
-                System.out.println("❌ Erro ao incluir boleto.");
+                System.out.println("[ERRO] Erro ao incluir boleto.");
             }
         } catch (Exception e) {
-            System.out.println("❌ Erro ao incluir boleto: " + e.getMessage());
+            System.out.println("[ERRO] " + e.getMessage());
         }
     }
 
